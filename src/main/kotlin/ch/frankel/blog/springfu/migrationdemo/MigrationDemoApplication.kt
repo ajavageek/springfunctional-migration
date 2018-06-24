@@ -7,7 +7,9 @@ import org.springframework.data.annotation.*
 import org.springframework.data.mongodb.core.mapping.*
 import org.springframework.data.mongodb.repository.*
 import org.springframework.http.*
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.reactive.function.server.*
+import org.springframework.web.reactive.function.server.RequestPredicates.*
+import org.springframework.web.reactive.function.server.RouterFunctions.*
 import java.time.Duration
 import java.time.LocalDate
 
@@ -22,20 +24,21 @@ class MigrationDemoApplication {
                             Person(3, "Brian", "Goetz"))
         ).blockLast(Duration.ofSeconds(2))
     }
+
+    @Bean
+    fun routes(repository: PersonRepository) = nest(
+            path("/person"),
+                route(
+                        GET("/{id}"),
+                        HandlerFunction { ServerResponse.ok().body(repository.findById(it.pathVariable("id").toLong())) })
+                .andRoute(
+                        method(HttpMethod.GET),
+                        HandlerFunction { ServerResponse.ok().body(repository.findAll()) })
+    )
 }
 
 fun main(args: Array<String>) {
     runApplication<MigrationDemoApplication>(*args)
-}
-
-@RestController
-class PersonController(private val personRepository: PersonRepository) {
-
-    @GetMapping("/person")
-    fun readAll() = personRepository.findAll()
-
-    @GetMapping("/person/{id}")
-    fun readOne(@PathVariable id: Long) = personRepository.findById(id)
 }
 
 @Document
