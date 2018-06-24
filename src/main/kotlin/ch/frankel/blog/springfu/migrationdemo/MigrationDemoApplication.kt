@@ -1,8 +1,10 @@
 package ch.frankel.blog.springfu.migrationdemo
 
+import org.springframework.beans.factory.annotation.*
 import org.springframework.boot.*
 import org.springframework.boot.autoconfigure.*
 import org.springframework.context.annotation.*
+import org.springframework.context.support.*
 import org.springframework.data.annotation.*
 import org.springframework.data.mongodb.core.mapping.*
 import org.springframework.data.mongodb.repository.*
@@ -16,14 +18,8 @@ import java.time.LocalDate
 @SpringBootApplication
 class MigrationDemoApplication {
 
-    @Bean
-    fun initialize(repository: PersonRepository) = CommandLineRunner {
-        repository.insert(
-                arrayListOf(Person(1, "John", "Doe", LocalDate.of(1970, 1, 1)),
-                            Person(2, "Jane", "Doe", LocalDate.of(1970, 1, 1)),
-                            Person(3, "Brian", "Goetz"))
-        ).blockLast(Duration.ofSeconds(2))
-    }
+    @Autowired
+    fun register(ctx: GenericApplicationContext) = beans().initialize(ctx)
 
     @Bean
     fun routes(repository: PersonRepository): RouterFunction<ServerResponse> {
@@ -37,6 +33,18 @@ class MigrationDemoApplication {
                         method(HttpMethod.GET),
                         HandlerFunction(handler::readAll))
     )}
+}
+
+fun beans() = beans {
+    bean {
+        CommandLineRunner {
+            ref<PersonRepository>().insert(
+                    arrayListOf(Person(1, "John", "Doe", LocalDate.of(1970, 1, 1)),
+                                Person(2, "Jane", "Doe", LocalDate.of(1970, 1, 1)),
+                                Person(3, "Brian", "Goetz"))
+            ).blockLast(Duration.ofSeconds(2))
+        }
+    }
 }
 
 class PersonHandler(private val personRepository: PersonRepository) {
