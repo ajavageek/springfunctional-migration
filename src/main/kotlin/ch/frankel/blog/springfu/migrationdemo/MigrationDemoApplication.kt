@@ -42,7 +42,9 @@ class PersonHandler(private val personRepository: PersonRepository) {
 }
 
 fun main(args: Array<String>) {
-    runApplication<MigrationDemoApplication>(*args)
+    runApplication<MigrationDemoApplication>(*args) {
+        addInitializers(beans())
+    }
 }
 
 @Document
