@@ -1,6 +1,5 @@
 package ch.frankel.blog.springfu.migrationdemo
 
-import org.springframework.beans.factory.annotation.*
 import org.springframework.boot.*
 import org.springframework.boot.autoconfigure.*
 import org.springframework.context.support.*
@@ -13,11 +12,7 @@ import java.time.Duration
 import java.time.LocalDate
 
 @SpringBootApplication
-class MigrationDemoApplication {
-
-    @Autowired
-    fun register(ctx: GenericApplicationContext) = beans().initialize(ctx)
-}
+class MigrationDemoApplication
 
 fun beans() = beans {
     bean {
