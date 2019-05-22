@@ -17,17 +17,12 @@ import javax.persistence.Id
 class MigrationDemoApplication {
 
     @Bean
-    fun routes(repository: PersonRepository): RouterFunction<ServerResponse> {
+    fun routes(repository: PersonRepository) = router {
         val handler = PersonHandler(repository)
-        return nest(
-            path("/person"),
-            route(
-                GET("/{id}"),
-                HandlerFunction(handler::readOne))
-                .andRoute(
-                    method(HttpMethod.GET),
-                    HandlerFunction { handler.readAll() })
-        )
+        "/person".nest {
+            GET("/{id}", handler::readOne)
+            GET("/") { handler.readAll() }
+        }
     }
 }
 
