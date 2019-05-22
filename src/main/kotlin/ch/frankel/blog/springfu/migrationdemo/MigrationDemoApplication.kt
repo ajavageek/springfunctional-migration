@@ -23,7 +23,7 @@ class MigrationDemoApplication {
             path("/person"),
             route(
                 GET("/{id}"),
-                HandlerFunction { handler.readOne(it) })
+                HandlerFunction(handler::readOne))
                 .andRoute(
                     method(HttpMethod.GET),
                     HandlerFunction { handler.readAll() })
