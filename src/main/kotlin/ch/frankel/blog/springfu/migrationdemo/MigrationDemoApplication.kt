@@ -13,7 +13,7 @@ import javax.persistence.Id
 class MigrationDemoApplication
 
 fun beans() = beans {
-    bean { PersonHandler(ref()) }
+    bean<PersonHandler>()
     bean {
         router {
             "/person".nest {
