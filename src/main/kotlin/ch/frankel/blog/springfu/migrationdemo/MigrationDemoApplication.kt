@@ -13,10 +13,11 @@ import javax.persistence.Id
 class MigrationDemoApplication
 
 fun beans() = beans {
+    bean { PersonHandler(ref()) }
     bean {
         router {
             "/person".nest {
-                val handler = PersonHandler(ref())
+                val handler = ref<PersonHandler>()
                 GET("/{id}", handler::readOne)
                 GET("/") { handler.readAll() }
             }
