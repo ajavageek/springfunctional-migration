@@ -17,9 +17,8 @@ fun beans() = beans {
     bean {
         router {
             "/person".nest {
-                val handler = ref<PersonHandler>()
-                GET("/{id}", handler::readOne)
-                GET("/") { handler.readAll() }
+                GET("/{id}", ref<PersonHandler>()::readOne)
+                GET("/") { ref<PersonHandler>().readAll() }
             }
         }
     }
