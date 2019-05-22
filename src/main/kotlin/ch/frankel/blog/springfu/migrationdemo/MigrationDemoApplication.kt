@@ -5,11 +5,10 @@ import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.http.HttpMethod
-import org.springframework.web.servlet.function.HandlerFunction
+import org.springframework.web.servlet.function.*
 import org.springframework.web.servlet.function.RequestPredicates.*
 import org.springframework.web.servlet.function.RouterFunctions.nest
 import org.springframework.web.servlet.function.RouterFunctions.route
-import org.springframework.web.servlet.function.ServerResponse
 import java.time.LocalDate
 import javax.persistence.Entity
 import javax.persistence.Id
@@ -18,19 +17,27 @@ import javax.persistence.Id
 class MigrationDemoApplication {
 
     @Bean
-    fun routes(repository: PersonRepository) = nest(
-        path("/person"),
-        route(
-            GET("/{id}"),
-            HandlerFunction { ServerResponse.ok().body(repository.findById(it.pathVariable("id").toLong())) })
-            .andRoute(
-                method(HttpMethod.GET),
-                HandlerFunction { ServerResponse.ok().body(repository.findAll()) })
-    )
+    fun routes(repository: PersonRepository): RouterFunction<ServerResponse> {
+        val handler = PersonHandler(repository)
+        return nest(
+            path("/person"),
+            route(
+                GET("/{id}"),
+                HandlerFunction { handler.readOne(it) })
+                .andRoute(
+                    method(HttpMethod.GET),
+                    HandlerFunction { handler.readAll() })
+        )
+    }
 }
 
 fun main(args: Array<String>) {
     runApplication<MigrationDemoApplication>(*args)
+}
+
+class PersonHandler(private val personRepository: PersonRepository) {
+    fun readAll() = ServerResponse.ok().body(personRepository.findAll())
+    fun readOne(request: ServerRequest) = ServerResponse.ok().body(personRepository.findById(request.pathVariable("id").toLong()))
 }
 
 @Entity
